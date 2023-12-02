@@ -1,70 +1,83 @@
 import streamlit as st
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
+import pandas as pd  # Add this import statement for pandas
+import os
+import streamlit as st
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+import os
 
-# Set the title of the app
-st.title("Plotting Graphs with Streamlit")
+# Set page title
+st.title("Interactive Plotting App")
 
-# Create a sidebar with a selectbox to choose the type of plot
-plot_type = st.sidebar.selectbox("Choose the type of plot", ["Matplotlib", "Seaborn", "Plotly"])
+# Sidebar for user input
+st.sidebar.header("Settings")
 
-# Create a file uploader to upload a CSV file
-uploaded_file = st.sidebar.file_uploader("Upload a CSV file", type="csv")
+# Choose plotting library
+plotting_library = st.sidebar.selectbox("Select Plotting Library", ["Matplotlib", "Seaborn", "Plotly"])
 
-# Check if a file is uploaded
-if uploaded_file is not None:
-    # Read the file as a data frame
-    df = pd.read_csv(uploaded_file)
+# Upload file
+uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type=["csv"])
 
-    # Display the data frame
-    st.write("Here is your data:")
-    st.dataframe(df)
+# Function to plot using Matplotlib
+def plot_matplotlib(data):
+    st.subheader("Matplotlib Plot")
+    # Your Matplotlib plotting code here
+    plt.plot(data)
+    st.pyplot()
 
-    # Display the columns of the data frame
-    st.write("Here are the columns of your data:")
-    st.write(list(df.columns))
+    # Save as PNG
+    if st.button("Save Matplotlib Plot as PNG"):
+        plt.savefig("matplotlib_plot.png")
+        st.success("Plot saved as matplotlib_plot.png")
 
-    # Create a sidebar with multiselect to choose the columns to plot
-    columns = st.sidebar.multiselect("Choose the columns to plot", list(df.columns))
+# Function to plot using Seaborn
+def plot_seaborn(data):
+    st.subheader("Seaborn Plot")
+    # Your Seaborn plotting code here
+    sns.lineplot(data=data)
+    st.pyplot()
 
-    # Check if at least two columns are selected
-    if len(columns) >= 2:
-        # Display the plot based on the type of plot chosen
-        st.write(f"Here is your {plot_type} plot:")
-        if plot_type == "Matplotlib":
-            # Create a matplotlib figure
-            fig, ax = plt.subplots()
-            # Plot the columns as a scatter plot
-            ax.scatter(df[columns[0]], df[columns[1]])
-            # Set the labels of the axes
-            ax.set_xlabel(columns[0])
-            ax.set_ylabel(columns[1])
-            # Display the plot
-            st.pyplot(fig)
-        elif plot_type == "Seaborn":
-            # Create a seaborn figure
-            fig = sns.relplot(x=columns[0], y=columns[1], data=df)
-            # Display the plot
-            st.seaborn(fig)
-        elif plot_type == "Plotly":
-            # Create a plotly figure
-            fig = px.scatter(df, x=columns[0], y=columns[1])
-            # Display the plot
-            st.plotly_chart(fig)
+    # Save as PNG
+    if st.button("Save Seaborn Plot as PNG"):
+        plt.savefig("seaborn_plot.png")
+        st.success("Plot saved as seaborn_plot.png")
 
-        # Create a button to download the plot as a PNG or PDF file
-        download = st.button("Download plot")
-        # Check if the button is clicked
-        if download:
-            # Save the plot as a PNG file
-            fig.savefig("plot.png")
-            # Display a link to download the file
-            st.markdown("[Download plot]")
+# Function to plot using Plotly
+def plot_plotly(data):
+    st.subheader("Plotly Plot")
+    # Your Plotly plotting code here
+    fig = px.line(data, x=data.index, y=data.columns)
+    st.plotly_chart(fig)
+
+    # Save as PNG
+    if st.button("Save Plotly Plot as PNG"):
+        fig.write_image("plotly_plot.png")
+        st.success("Plot saved as plotly_plot.png")
+
+# Main function
+def main():
+    if uploaded_file is not None:
+        data = None
+        try:
+            # Read data from CSV
+            data = pd.read_csv(uploaded_file)
+        except Exception as e:
+            st.error(f"Error: {e}")
+
+        if data is not None:
+            if plotting_library == "Matplotlib":
+                plot_matplotlib(data)
+            elif plotting_library == "Seaborn":
+                plot_seaborn(data)
+            elif plotting_library == "Plotly":
+                plot_plotly(data)
     else:
-        # Display a message if less than two columns are selected
-        st.write("Please select at least two columns to plot.")
-else:
-    # Display a message if no file is uploaded
-    st.write("Please upload a CSV file to plot.")
+        st.warning("Please upload a CSV file.")
+
+# Run the app
+if __name__ == "__main__":
+    main()
