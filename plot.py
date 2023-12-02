@@ -1,13 +1,7 @@
 import streamlit as st
-import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
-import pandas as pd  # Add this import statement for pandas
-import os
-import streamlit as st
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.express as px
+import pandas as pd  # Include this import statement for pandas
 import os
 
 # Set page title
@@ -16,23 +10,11 @@ st.title("Interactive Plotting App")
 # Sidebar for user input
 st.sidebar.header("Settings")
 
-# Choose plotting library
-plotting_library = st.sidebar.selectbox("Select Plotting Library", ["Matplotlib", "Seaborn", "Plotly"])
+# Choose plotting library (exclude Matplotlib)
+plotting_library = st.sidebar.selectbox("Select Plotting Library", ["Seaborn", "Plotly"])
 
 # Upload file
 uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type=["csv"])
-
-# Function to plot using Matplotlib
-def plot_matplotlib(data):
-    st.subheader("Matplotlib Plot")
-    # Your Matplotlib plotting code here
-    plt.plot(data)
-    st.pyplot()
-
-    # Save as PNG
-    if st.button("Save Matplotlib Plot as PNG"):
-        plt.savefig("matplotlib_plot.png")
-        st.success("Plot saved as matplotlib_plot.png")
 
 # Function to plot using Seaborn
 def plot_seaborn(data):
@@ -69,9 +51,7 @@ def main():
             st.error(f"Error: {e}")
 
         if data is not None:
-            if plotting_library == "Matplotlib":
-                plot_matplotlib(data)
-            elif plotting_library == "Seaborn":
+            if plotting_library == "Seaborn":
                 plot_seaborn(data)
             elif plotting_library == "Plotly":
                 plot_plotly(data)
